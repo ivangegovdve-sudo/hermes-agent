@@ -869,7 +869,14 @@ def resolve_skill_config_values(
 
 # ── Description extraction ────────────────────────────────────────────────
 
-SKILL_PROMPT_DESC_LIMIT = 60
+# Raised 60 -> 1024 on 2026-08-12. 60 truncated the index entry to 57 chars +
+# ellipsis, which is a third of a sentence to route on. 1024 is the Agent Skills
+# spec cap; longest description measured in this fleet is 315, so nothing is cut
+# today. Measured cost of the change: +627..+856 tokens per agent system prompt.
+# NOTE: $HERMES_HOME/.skills_prompt_snapshot.json is keyed on SKILL.md mtime/size,
+# so it does NOT invalidate on a change to this constant -- delete the snapshot or
+# the agent keeps serving truncated descriptions after a restart.
+SKILL_PROMPT_DESC_LIMIT = 1024
 
 
 def _normalize_skill_description(frontmatter: Dict[str, Any]) -> str:
